@@ -1,0 +1,9 @@
+mutation Test {
+  pushSchema(
+    schemaInput: {
+      serviceName: "cart"
+      serviceUrl: "http://cart-service"
+      typeDefs: "type Query { placeHolder: String } type Mutation { pushSchema(schemaInput: SchemaInput!): Boolean!} input SchemaInput { serviceName: String! serviceUrl: String! typeDefs: String! }"
+    }
+  )
+}
