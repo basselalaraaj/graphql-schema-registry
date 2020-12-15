@@ -17,7 +17,9 @@ type SchemaRegistry struct {
 }
 
 var rdb = redis.NewClient(&redis.Options{
-	Addr: ":6379",
+	Addr:     "localhost:6379",
+	Password: "",
+	DB:       0,
 })
 
 var ctx = context.Background()
@@ -31,7 +33,7 @@ func (s *SchemaRegistry) ValidateSchema() error {
 	return nil
 }
 
-// Save the schemaa in redis
+// Save the schema in redis
 func (s *SchemaRegistry) Save() error {
 	value, _ := json.Marshal(s)
 
