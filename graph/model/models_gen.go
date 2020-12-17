@@ -2,6 +2,12 @@
 
 package model
 
+type Schema struct {
+	ServiceName string `json:"serviceName"`
+	ServiceURL  string `json:"serviceUrl"`
+	TypeDefs    string `json:"typeDefs"`
+}
+
 type SchemaInput struct {
 	ServiceName string `json:"serviceName"`
 	ServiceURL  string `json:"serviceUrl"`

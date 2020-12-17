@@ -43,3 +43,20 @@ func (s *SchemaRegistry) Save() error {
 	}
 	return nil
 }
+
+// GetServiceSchema get service schema from redis
+func GetServiceSchema(service string) (*SchemaRegistry, error) {
+	val2, err := rdb.Get(ctx, service).Result()
+	if err == redis.Nil {
+		return &SchemaRegistry{}, err
+	} else if err != nil {
+		panic(err)
+	} else {
+		var serviceSchema SchemaRegistry
+		err := json.Unmarshal([]byte(val2), &serviceSchema)
+		if err != nil {
+			return &SchemaRegistry{}, err
+		}
+		return &serviceSchema, nil
+	}
+}

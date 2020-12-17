@@ -2,6 +2,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/basselalaraaj/graphql-schema-registry/graph/generated"
 	"github.com/basselalaraaj/graphql-schema-registry/graph/model"
@@ -45,7 +46,15 @@ func (r *mutationResolver) PushSchema(ctx context.Context, schemaInput model.Sch
 
 type queryResolver struct{ *Resolver }
 
-func (r *queryResolver) PlaceHolder(ctx context.Context) (*string, error) {
-	text := "Hello world"
-	return &text, nil
+func (r *queryResolver) GetSchemas(ctx context.Context, services []string) ([]*model.Schema, error) {
+	servicesSchema := []*model.Schema{}
+	for _, service := range services {
+		schema, err := registry.GetServiceSchema(service)
+		if err != nil {
+			return nil, fmt.Errorf("Not able to get schema for the service %v", service)
+		}
+		newSchema := model.Schema(*schema)
+		servicesSchema = append(servicesSchema, &newSchema)
+	}
+	return servicesSchema, nil
 }

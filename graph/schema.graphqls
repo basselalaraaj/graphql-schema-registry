@@ -1,5 +1,5 @@
 type Query {
-  placeHolder: String
+  getSchemas(services: [String!]!): [Schema!]!
 }
 
 type Mutation {
@@ -7,6 +7,12 @@ type Mutation {
 }
 
 input SchemaInput {
+  serviceName: String!
+  serviceUrl: String!
+  typeDefs: String!
+}
+
+type Schema {
   serviceName: String!
   serviceUrl: String!
   typeDefs: String!

@@ -1,4 +1,4 @@
-mutation Test {
+mutation PushSchema {
   pushSchema(
     schemaInput: {
       serviceName: "cart"
