@@ -1,5 +1,8 @@
+scalar JSON
+
 type Query {
-  getSchemas(services: [String!]!): [Schema!]!
+  getSchema(services: [String!]!): [Schema!]!
+  getAllSchemas: [Schema!]!
 }
 
 type Mutation {
@@ -9,11 +12,11 @@ type Mutation {
 input SchemaInput {
   serviceName: String!
   serviceUrl: String!
-  typeDefs: String!
+  typeDefs: JSON!
 }
 
 type Schema {
   serviceName: String!
   serviceUrl: String!
-  typeDefs: String!
+  typeDefs: JSON!
 }

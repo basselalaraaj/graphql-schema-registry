@@ -48,7 +48,8 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		GetSchemas func(childComplexity int, services []string) int
+		GetAllSchemas func(childComplexity int) int
+		GetSchema     func(childComplexity int, services []string) int
 	}
 
 	Schema struct {
@@ -62,7 +63,8 @@ type MutationResolver interface {
 	PushSchema(ctx context.Context, schemaInput model.SchemaInput) (bool, error)
 }
 type QueryResolver interface {
-	GetSchemas(ctx context.Context, services []string) ([]*model.Schema, error)
+	GetSchema(ctx context.Context, services []string) ([]*model.Schema, error)
+	GetAllSchemas(ctx context.Context) ([]*model.Schema, error)
 }
 
 type executableSchema struct {
@@ -92,17 +94,24 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.PushSchema(childComplexity, args["schemaInput"].(model.SchemaInput)), true
 
-	case "Query.getSchemas":
-		if e.complexity.Query.GetSchemas == nil {
+	case "Query.getAllSchemas":
+		if e.complexity.Query.GetAllSchemas == nil {
 			break
 		}
 
-		args, err := ec.field_Query_getSchemas_args(context.TODO(), rawArgs)
+		return e.complexity.Query.GetAllSchemas(childComplexity), true
+
+	case "Query.getSchema":
+		if e.complexity.Query.GetSchema == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getSchema_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.GetSchemas(childComplexity, args["services"].([]string)), true
+		return e.complexity.Query.GetSchema(childComplexity, args["services"].([]string)), true
 
 	case "Schema.serviceName":
 		if e.complexity.Schema.ServiceName == nil {
@@ -189,8 +198,11 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "graph/schema.graphqls", Input: `type Query {
-  getSchemas(services: [String!]!): [Schema!]!
+	{Name: "graph/schema.graphqls", Input: `scalar JSON
+
+type Query {
+  getSchema(services: [String!]!): [Schema!]!
+  getAllSchemas: [Schema!]!
 }
 
 type Mutation {
@@ -200,15 +212,25 @@ type Mutation {
 input SchemaInput {
   serviceName: String!
   serviceUrl: String!
-  typeDefs: String!
+  typeDefs: JSON!
 }
 
 type Schema {
   serviceName: String!
   serviceUrl: String!
-  typeDefs: String!
+  typeDefs: JSON!
 }
 `, BuiltIn: false},
+	{Name: "federation/directives.graphql", Input: `
+scalar _Any
+scalar _FieldSet
+
+directive @external on FIELD_DEFINITION
+directive @requires(fields: _FieldSet!) on FIELD_DEFINITION
+directive @provides(fields: _FieldSet!) on FIELD_DEFINITION
+directive @key(fields: _FieldSet!) on OBJECT | INTERFACE
+directive @extends on OBJECT
+`, BuiltIn: true},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
@@ -246,7 +268,7 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_getSchemas_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_getSchema_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 []string
@@ -341,7 +363,7 @@ func (ec *executionContext) _Mutation_pushSchema(ctx context.Context, field grap
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Query_getSchemas(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Query_getSchema(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -358,7 +380,7 @@ func (ec *executionContext) _Query_getSchemas(ctx context.Context, field graphql
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Query_getSchemas_args(ctx, rawArgs)
+	args, err := ec.field_Query_getSchema_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -366,7 +388,42 @@ func (ec *executionContext) _Query_getSchemas(ctx context.Context, field graphql
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetSchemas(rctx, args["services"].([]string))
+		return ec.resolvers.Query().GetSchema(rctx, args["services"].([]string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Schema)
+	fc.Result = res
+	return ec.marshalNSchema2ᚕᚖgithubᚗcomᚋbasselalaraajᚋgraphqlᚑschemaᚑregistryᚋgraphᚋmodelᚐSchemaᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_getAllSchemas(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetAllSchemas(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -556,7 +613,7 @@ func (ec *executionContext) _Schema_typeDefs(ctx context.Context, field graphql.
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNJSON2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
@@ -1672,7 +1729,7 @@ func (ec *executionContext) unmarshalInputSchemaInput(ctx context.Context, obj i
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("typeDefs"))
-			it.TypeDefs, err = ec.unmarshalNString2string(ctx, v)
+			it.TypeDefs, err = ec.unmarshalNJSON2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -1736,7 +1793,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "getSchemas":
+		case "getSchema":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
 				defer func() {
@@ -1744,7 +1801,21 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_getSchemas(ctx, field)
+				res = ec._Query_getSchema(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "getAllSchemas":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getAllSchemas(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -2062,6 +2133,21 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) unmarshalNJSON2string(ctx context.Context, v interface{}) (string, error) {
+	res, err := graphql.UnmarshalString(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNJSON2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
+	res := graphql.MarshalString(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+	}
+	return res
+}
+
 func (ec *executionContext) marshalNSchema2ᚕᚖgithubᚗcomᚋbasselalaraajᚋgraphqlᚑschemaᚑregistryᚋgraphᚋmodelᚐSchemaᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Schema) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -2157,6 +2243,21 @@ func (ec *executionContext) marshalNString2ᚕstringᚄ(ctx context.Context, sel
 	}
 
 	return ret
+}
+
+func (ec *executionContext) unmarshalN_FieldSet2string(ctx context.Context, v interface{}) (string, error) {
+	res, err := graphql.UnmarshalString(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalN_FieldSet2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
+	res := graphql.MarshalString(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+	}
+	return res
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {

@@ -1,5 +1,5 @@
 query GetSchemas {
-  getSchemas(services: ["cart"]) {
+  getSchema(services: ["cart"]) {
     serviceName
     serviceUrl
     typeDefs

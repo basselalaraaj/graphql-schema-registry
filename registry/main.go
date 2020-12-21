@@ -3,6 +3,7 @@ package registry
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/vektah/gqlparser"
@@ -26,6 +27,9 @@ var ctx = context.Background()
 
 // ValidateSchema validates the graphql schema
 func (s *SchemaRegistry) ValidateSchema() error {
+	if len(s.TypeDefs) == 0 {
+		return fmt.Errorf("typedefs should not be empty")
+	}
 	_, err := gqlparser.LoadSchema(&ast.Source{Name: s.ServiceName, Input: s.TypeDefs, BuiltIn: false})
 	if err != nil {
 		return err
@@ -59,4 +63,14 @@ func GetServiceSchema(service string) (*SchemaRegistry, error) {
 		}
 		return &serviceSchema, nil
 	}
+}
+
+// GetAllServices returns all services names
+func GetAllServices() (*[]string, error) {
+	var cursor uint64
+	keys, cursor, err := rdb.Scan(ctx, cursor, "*", 100).Result()
+	if err != nil {
+		return &[]string{}, nil
+	}
+	return &keys, nil
 }
