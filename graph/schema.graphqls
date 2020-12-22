@@ -1,0 +1,22 @@
+scalar JSON
+
+type Query {
+  getSchema(services: [String!]!): [Schema!]!
+  getAllSchemas: [Schema!]!
+}
+
+type Mutation {
+  pushSchema(schemaInput: SchemaInput!): Boolean!
+}
+
+input SchemaInput {
+  serviceName: String!
+  serviceUrl: String!
+  typeDefs: JSON!
+}
+
+type Schema {
+  serviceName: String!
+  serviceUrl: String!
+  typeDefs: JSON!
+}

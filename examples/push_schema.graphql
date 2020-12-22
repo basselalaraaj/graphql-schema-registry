@@ -1,0 +1,9 @@
+mutation PushSchema {
+  pushSchema(
+    schemaInput: {
+      serviceName: "cart"
+      serviceUrl: "http://cart-service"
+      typeDefs: "type Query {\n  placeHolder: String\n}"
+    }
+  )
+}
