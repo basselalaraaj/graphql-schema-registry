@@ -46,8 +46,16 @@ func TestSchemaSave(t *testing.T) {
 			TypeDefs:    "type Query { placeHolder: String }",
 		}
 
-		mr, _ := miniredis.Run()
-		mr.StartAddr("localhost:6379")
+		mr, err := miniredis.Run()
+		if err != nil {
+			panic(err)
+		}
+		defer mr.Close()
+
+		err = mr.StartAddr("localhost:6379")
+		if err != nil {
+			panic(err)
+		}
 
 		client := redis.NewClient(&redis.Options{
 			Addr: mr.Addr(),

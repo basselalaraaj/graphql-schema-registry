@@ -68,7 +68,7 @@ func GetServiceSchema(service string) (*SchemaRegistry, error) {
 // GetAllServices returns all services names
 func GetAllServices() (*[]string, error) {
 	var cursor uint64
-	keys, cursor, err := rdb.Scan(ctx, cursor, "*", 100).Result()
+	keys, _, err := rdb.Scan(ctx, cursor, "*", 100).Result()
 	if err != nil {
 		return &[]string{}, nil
 	}
