@@ -2,6 +2,15 @@
 
 ## Getting started
 
+Create a .env file for your configuration
+
+```env
+SERVICEBUS_CONNECTION_STRING=
+SERVICEBUS_QUEUE_NAME=
+```
+
+Run the service through the command line
+
 ```bash
 $ go run server.go
 ```
@@ -25,7 +34,7 @@ $ docker run -ti -p 8080:8080 graphql-schema-registry
 
 ## Development
 
-Use air command line for live reloading
+Use air command line for live reloading for development
 ```bash
 $ air
 ```
