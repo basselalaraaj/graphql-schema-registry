@@ -17,8 +17,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
       - name: lint
-        uses: golangci/golangci-lint-action@v2
-        with:
-          version: v1.33
+        run: make lint
       - name: test
-        run: go test ./...
+        run: make test
