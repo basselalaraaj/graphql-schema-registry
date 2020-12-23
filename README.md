@@ -1,4 +1,5 @@
 # graphql-schema-registry
+[![Go Reference](https://pkg.go.dev/badge/github.com/basselalaraaj/graphql-schema-registry.svg)](https://pkg.go.dev/github.com/basselalaraaj/graphql-schema-registry)
 
 ## Getting started
 
