@@ -2,8 +2,12 @@
 .PHONY: all
 all: test-all build
 
+.PHONY: build
+build:
+	go build -o graphql-schema-registry .
+
 .PHONY: test-all
-test-all: vet lint test
+test-all: lint test
 
 .PHONY: test
 test:
@@ -16,7 +20,3 @@ lint:
 		-w /app \
 		golangci/golangci-lint:v1.33.0 \
 			golangci-lint --color never run
-
-.PHONY: vet
-vet:
-	go vet ./...
