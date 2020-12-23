@@ -7,6 +7,7 @@ import (
 	"github.com/basselalaraaj/graphql-schema-registry/graph/generated"
 	"github.com/basselalaraaj/graphql-schema-registry/graph/model"
 	"github.com/basselalaraaj/graphql-schema-registry/registry"
+	"github.com/basselalaraaj/graphql-schema-registry/servicebus"
 )
 
 // Resolver It serves as dependency injection for your app, add any dependencies you require here.
@@ -40,6 +41,8 @@ func (r *mutationResolver) PushSchema(ctx context.Context, schemaInput model.Sch
 	if err != nil {
 		return false, err
 	}
+
+	servicebus.SendMessage()
 
 	return true, nil
 }
