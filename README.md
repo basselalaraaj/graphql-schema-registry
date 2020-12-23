@@ -22,3 +22,10 @@ $ export DOCKER_BUILDKIT=1
 $ docker build -t graphql-schema-registry .
 $ docker run -ti -p 8080:8080 graphql-schema-registry
 ```
+
+## Development
+
+Use air command line for live reloading
+```bash
+$ air
+```
