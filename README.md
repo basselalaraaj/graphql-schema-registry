@@ -7,7 +7,7 @@ Create a .env file for your configuration
 
 ```env
 SERVICEBUS_CONNECTION_STRING=
-SERVICEBUS_QUEUE_NAME=
+SERVICEBUS_TOPIC_NAME=
 ```
 
 Run the service through the command line

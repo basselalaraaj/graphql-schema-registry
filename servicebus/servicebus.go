@@ -2,16 +2,18 @@ package servicebus
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"time"
 
 	servicebus "github.com/Azure/azure-service-bus-go"
+	"github.com/basselalaraaj/graphql-schema-registry/registry"
 )
 
 type serviceBus struct {
 	connectionString string
-	client           *servicebus.Queue
+	client           *servicebus.Topic
 }
 
 var serviceBusConnection *serviceBus
@@ -33,13 +35,13 @@ func (s *serviceBus) createClient() {
 		return
 	}
 
-	queueName := os.Getenv("SERVICEBUS_QUEUE_NAME")
-	if queueName == "" {
-		fmt.Println("FATAL: expected environment variable SERVICEBUS_QUEUE_NAME not set")
+	topicName := os.Getenv("SERVICEBUS_TOPIC_NAME")
+	if topicName == "" {
+		fmt.Println("FATAL: expected environment variable SERVICEBUS_TOPIC_NAME not set")
 		return
 	}
 
-	client, err := ns.NewQueue(queueName)
+	client, err := ns.NewTopic(topicName)
 	if err != nil {
 		return
 	}
@@ -55,11 +57,17 @@ func Initialize() {
 }
 
 // SendMessage to send messages on the service bus
-func SendMessage() {
+func SendMessage(message *registry.SchemaRegistry) {
 	ctx, cancel := context.WithTimeout(context.Background(), 40*time.Second)
 	defer cancel()
 
-	if err := serviceBusConnection.client.Send(ctx, servicebus.NewMessageFromString("Hello World!!!")); err != nil {
+	jsonMessage, err := json.Marshal(message)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	if err := serviceBusConnection.client.Send(ctx, servicebus.NewMessageFromString(string(jsonMessage))); err != nil {
 		fmt.Println("FATAL: ", err)
 	}
 }

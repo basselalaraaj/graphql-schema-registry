@@ -16,3 +16,6 @@
 
 # Configuration
 .env
+
+# Tmp
+tmp
