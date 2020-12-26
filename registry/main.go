@@ -27,7 +27,7 @@ var ctx = context.Background()
 
 // ValidateSchema validates the graphql schema
 func (s *SchemaRegistry) ValidateSchema() error {
-	if len(s.TypeDefs) == 0 {
+	if s.TypeDefs == "" {
 		return fmt.Errorf("typedefs should not be empty")
 	}
 	_, err := gqlparser.LoadSchema(&ast.Source{Name: s.ServiceName, Input: s.TypeDefs, BuiltIn: false})

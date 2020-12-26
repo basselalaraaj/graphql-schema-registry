@@ -56,7 +56,7 @@ func (r *queryResolver) GetSchema(ctx context.Context, services []string) ([]*mo
 	for _, service := range services {
 		schema, err := registry.GetServiceSchema(service)
 		if err != nil {
-			return nil, fmt.Errorf("Not able to get schema for the service %v", service)
+			return nil, fmt.Errorf("not able to get schema for the service %v", service)
 		}
 		newSchema := model.Schema(*schema)
 		servicesSchema = append(servicesSchema, &newSchema)
@@ -68,12 +68,12 @@ func (r *queryResolver) GetAllSchemas(ctx context.Context) ([]*model.Schema, err
 	servicesSchema := []*model.Schema{}
 	services, err := registry.GetAllServices()
 	if err != nil {
-		return nil, fmt.Errorf("Not able to get schema for the services")
+		return nil, fmt.Errorf("not able to get schema for the services")
 	}
 	for _, service := range *services {
 		schema, err := registry.GetServiceSchema(service)
 		if err != nil {
-			return nil, fmt.Errorf("Not able to get schema for the service %v", service)
+			return nil, fmt.Errorf("not able to get schema for the service %v", service)
 		}
 		newSchema := model.Schema(*schema)
 		servicesSchema = append(servicesSchema, &newSchema)

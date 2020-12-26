@@ -11,6 +11,8 @@ import (
 	"github.com/basselalaraaj/graphql-schema-registry/registry"
 )
 
+var seconds int = 40
+
 type serviceBus struct {
 	connectionString string
 	client           *servicebus.Topic
@@ -58,7 +60,7 @@ func Initialize() {
 
 // SendMessage to send messages on the service bus
 func SendMessage(message *registry.SchemaRegistry) {
-	ctx, cancel := context.WithTimeout(context.Background(), 40*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(seconds)*time.Second)
 	defer cancel()
 
 	jsonMessage, err := json.Marshal(message)

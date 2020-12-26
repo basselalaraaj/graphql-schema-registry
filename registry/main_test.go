@@ -10,7 +10,7 @@ import (
 )
 
 func TestSchemaValidation(t *testing.T) {
-	t.Run("Should be successfull if schema is valid", func(t *testing.T) {
+	t.Run("Should be successful if schema is valid", func(t *testing.T) {
 		schema := registry.SchemaRegistry{
 			ServiceName: "Cart",
 			ServiceURL:  "http://cart-service",
@@ -24,7 +24,6 @@ func TestSchemaValidation(t *testing.T) {
 	})
 
 	t.Run("Should return an error if schema is invalid", func(t *testing.T) {
-
 		schema := registry.SchemaRegistry{
 			ServiceName: "Cart",
 			ServiceURL:  "http://cart-service",
