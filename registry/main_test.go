@@ -18,7 +18,6 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(err)
 	}
-	defer mr.Close()
 
 	err = mr.StartAddr("localhost:6379")
 	if err != nil {
@@ -30,7 +29,11 @@ func TestMain(m *testing.M) {
 	})
 
 	code := m.Run()
-	os.Exit(code)
+
+	defer func() {
+		mr.Close()
+		os.Exit(code)
+	}()
 }
 
 func TestSchemaValidation(t *testing.T) {
