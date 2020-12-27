@@ -54,7 +54,7 @@ func GetServiceSchema(service string) (*SchemaRegistry, error) {
 	if err == redis.Nil {
 		return &SchemaRegistry{}, err
 	} else if err != nil {
-		panic(err)
+		return &SchemaRegistry{}, err
 	} else {
 		var serviceSchema SchemaRegistry
 		err := json.Unmarshal([]byte(val2), &serviceSchema)
@@ -70,7 +70,7 @@ func GetAllServices() (*[]string, error) {
 	var cursor uint64
 	keys, _, err := rdb.Scan(ctx, cursor, "*", 100).Result()
 	if err != nil {
-		return &[]string{}, nil
+		return &[]string{}, err
 	}
 	return &keys, nil
 }

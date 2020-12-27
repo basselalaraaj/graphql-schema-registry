@@ -80,16 +80,22 @@ func TestSchemaSave(t *testing.T) {
 }
 
 func TestGetServiceSchema(t *testing.T) {
-	t.Run("Should save the schema correctly to redis", func(t *testing.T) {
+	t.Run("Get service schema from redis", func(t *testing.T) {
 		_, err := registry.GetServiceSchema("Cart")
 		if err != nil {
+			t.Fail()
+		}
+	})
+	t.Run("Return error if service schema is not found in redis", func(t *testing.T) {
+		_, err := registry.GetServiceSchema("Shop")
+		if err == nil {
 			t.Fail()
 		}
 	})
 }
 
 func TestGetAllServices(t *testing.T) {
-	t.Run("Should save the schema correctly to redis", func(t *testing.T) {
+	t.Run("Get all services schema from redis", func(t *testing.T) {
 		_, err := registry.GetAllServices()
 		if err != nil {
 			t.Fail()
