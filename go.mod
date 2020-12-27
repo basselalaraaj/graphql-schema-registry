@@ -10,8 +10,8 @@ require (
 	github.com/Azure/go-autorest/autorest/adal v0.9.10 // indirect
 	github.com/alicebob/gopher-json v0.0.0-20200520072559-a9ecdc9d1d3a // indirect
 	github.com/alicebob/miniredis v2.5.0+incompatible
-	github.com/elliotchance/redismock/v8 v8.5.4
 	github.com/go-redis/redis/v8 v8.4.2
+	github.com/gomodule/redigo v2.0.0+incompatible // indirect
 	github.com/joho/godotenv v1.3.0
 	github.com/klauspost/compress v1.11.4 // indirect
 	github.com/mitchellh/mapstructure v1.4.0 // indirect
