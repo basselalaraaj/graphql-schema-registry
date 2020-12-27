@@ -7,6 +7,7 @@ import (
 	"github.com/basselalaraaj/graphql-schema-registry/graph/generated"
 	"github.com/basselalaraaj/graphql-schema-registry/graph/model"
 	"github.com/basselalaraaj/graphql-schema-registry/registry"
+	"github.com/basselalaraaj/graphql-schema-registry/servicebus"
 )
 
 // Resolver It serves as dependency injection for your app, add any dependencies you require here.
@@ -41,6 +42,10 @@ func (r *mutationResolver) PushSchema(ctx context.Context, schemaInput model.Sch
 		return false, err
 	}
 
+	go func() {
+		servicebus.SendMessage(schemaRegistry)
+	}()
+
 	return true, nil
 }
 
@@ -51,7 +56,7 @@ func (r *queryResolver) GetSchema(ctx context.Context, services []string) ([]*mo
 	for _, service := range services {
 		schema, err := registry.GetServiceSchema(service)
 		if err != nil {
-			return nil, fmt.Errorf("Not able to get schema for the service %v", service)
+			return nil, fmt.Errorf("not able to get schema for the service %v", service)
 		}
 		newSchema := model.Schema(*schema)
 		servicesSchema = append(servicesSchema, &newSchema)
@@ -63,12 +68,12 @@ func (r *queryResolver) GetAllSchemas(ctx context.Context) ([]*model.Schema, err
 	servicesSchema := []*model.Schema{}
 	services, err := registry.GetAllServices()
 	if err != nil {
-		return nil, fmt.Errorf("Not able to get schema for the services")
+		return nil, fmt.Errorf("not able to get schema for the services")
 	}
 	for _, service := range *services {
 		schema, err := registry.GetServiceSchema(service)
 		if err != nil {
-			return nil, fmt.Errorf("Not able to get schema for the service %v", service)
+			return nil, fmt.Errorf("not able to get schema for the service %v", service)
 		}
 		newSchema := model.Schema(*schema)
 		servicesSchema = append(servicesSchema, &newSchema)
