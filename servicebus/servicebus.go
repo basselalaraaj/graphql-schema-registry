@@ -14,11 +14,10 @@ import (
 var seconds int = 40
 
 type client struct {
-	Topic *servicebus.Topic
+	topic *servicebus.Topic
 }
 
-// ServiceBusClient client
-var ServiceBusClient *client
+var serviceBusClient *client
 
 func (s *client) createClient() error {
 	connectionString := os.Getenv("SERVICEBUS_CONNECTION_STRING")
@@ -41,15 +40,15 @@ func (s *client) createClient() error {
 	if err != nil {
 		return err
 	}
-	s.Topic = client
+	s.topic = client
 
 	return nil
 }
 
 // Initialize the service bus
 func Initialize() {
-	ServiceBusClient = &client{}
-	err := ServiceBusClient.createClient()
+	serviceBusClient = &client{}
+	err := serviceBusClient.createClient()
 	if err != nil {
 		fmt.Println("not able to create a client")
 		return
@@ -66,7 +65,7 @@ func SendMessage(message *registry.SchemaRegistry) error {
 		return err
 	}
 
-	if err := ServiceBusClient.Topic.Send(ctx, servicebus.NewMessageFromString(string(jsonMessage))); err != nil {
+	if err := serviceBusClient.topic.Send(ctx, servicebus.NewMessageFromString(string(jsonMessage))); err != nil {
 		return err
 	}
 
