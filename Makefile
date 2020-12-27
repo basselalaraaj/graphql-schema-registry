@@ -1,13 +1,13 @@
 
 .PHONY: all
-all: test-all build
+all: test-lint build
 
 .PHONY: build
 build:
 	go build -o graphql-schema-registry .
 
-.PHONY: test-all
-test-all: lint test
+.PHONY: test-lint
+test-lint: lint test
 
 .PHONY: test
 test:
@@ -15,8 +15,4 @@ test:
 
 .PHONY: lint
 lint:
-	docker run --rm \
-		-v $(PWD):/app \
-		-w /app \
-		golangci/golangci-lint:v1.33.0 \
-			golangci-lint --color never run
+	golangci-lint run
