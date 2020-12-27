@@ -43,7 +43,10 @@ func (r *mutationResolver) PushSchema(ctx context.Context, schemaInput model.Sch
 	}
 
 	go func() {
-		servicebus.SendMessage(schemaRegistry)
+		err := servicebus.SendMessage(schemaRegistry)
+		if err != nil {
+			fmt.Println("send message to service bus failed")
+		}
 	}()
 
 	return true, nil

@@ -13,63 +13,62 @@ import (
 
 var seconds int = 40
 
-type serviceBus struct {
-	connectionString string
-	client           *servicebus.Topic
+type client struct {
+	Topic *servicebus.Topic
 }
 
-var serviceBusConnection *serviceBus
+// ServiceBusClient client
+var ServiceBusClient *client
 
-func (s *serviceBus) startConnection() {
+func (s *client) createClient() error {
 	connectionString := os.Getenv("SERVICEBUS_CONNECTION_STRING")
 	if connectionString == "" {
-		fmt.Println("FATAL: expected environment variable SERVICEBUS_CONNECTION_STRING not set")
-		return
+		return fmt.Errorf("FATAL: expected environment variable SERVICEBUS_CONNECTION_STRING not set")
 	}
-	s.connectionString = connectionString
-}
 
-func (s *serviceBus) createClient() {
 	// Create a client to communicate with a Service Bus Namespace.
-	ns, err := servicebus.NewNamespace(servicebus.NamespaceWithConnectionString(s.connectionString))
+	ns, err := servicebus.NewNamespace(servicebus.NamespaceWithConnectionString(connectionString))
 	if err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
 
 	topicName := os.Getenv("SERVICEBUS_TOPIC_NAME")
 	if topicName == "" {
-		fmt.Println("FATAL: expected environment variable SERVICEBUS_TOPIC_NAME not set")
-		return
+		return fmt.Errorf("FATAL: expected environment variable SERVICEBUS_TOPIC_NAME not set")
 	}
 
 	client, err := ns.NewTopic(topicName)
 	if err != nil {
-		return
+		return err
 	}
-	s.client = client
+	s.Topic = client
+
+	return nil
 }
 
 // Initialize the service bus
 func Initialize() {
-	serviceBusConnection = &serviceBus{}
-
-	serviceBusConnection.startConnection()
-	serviceBusConnection.createClient()
+	ServiceBusClient = &client{}
+	err := ServiceBusClient.createClient()
+	if err != nil {
+		fmt.Println("not able to create a client")
+		return
+	}
 }
 
 // SendMessage to send messages on the service bus
-func SendMessage(message *registry.SchemaRegistry) {
+func SendMessage(message *registry.SchemaRegistry) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(seconds)*time.Second)
 	defer cancel()
 
 	jsonMessage, err := json.Marshal(message)
 	if err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
 
-	if err := serviceBusConnection.client.Send(ctx, servicebus.NewMessageFromString(string(jsonMessage))); err != nil {
-		fmt.Println("FATAL: ", err)
+	if err := ServiceBusClient.Topic.Send(ctx, servicebus.NewMessageFromString(string(jsonMessage))); err != nil {
+		return err
 	}
+
+	return nil
 }
