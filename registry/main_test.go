@@ -1,13 +1,37 @@
 package registry_test
 
 import (
+	"os"
 	"testing"
 
 	"github.com/alicebob/miniredis"
 	"github.com/basselalaraaj/graphql-schema-registry/registry"
-	"github.com/elliotchance/redismock/v8"
 	"github.com/go-redis/redis/v8"
 )
+
+var (
+	client *redis.Client
+)
+
+func TestMain(m *testing.M) {
+	mr, err := miniredis.Run()
+	if err != nil {
+		panic(err)
+	}
+	defer mr.Close()
+
+	err = mr.StartAddr("localhost:6379")
+	if err != nil {
+		panic(err)
+	}
+
+	client = redis.NewClient(&redis.Options{
+		Addr: mr.Addr(),
+	})
+
+	code := m.Run()
+	os.Exit(code)
+}
 
 func TestSchemaValidation(t *testing.T) {
 	t.Run("Should be successful if schema is valid", func(t *testing.T) {
@@ -45,28 +69,27 @@ func TestSchemaSave(t *testing.T) {
 			TypeDefs:    "type Query { placeHolder: String }",
 		}
 
-		mr, err := miniredis.Run()
-		if err != nil {
-			panic(err)
-		}
-		defer mr.Close()
-
-		err = mr.StartAddr("localhost:6379")
-		if err != nil {
-			panic(err)
-		}
-
-		client := redis.NewClient(&redis.Options{
-			Addr: mr.Addr(),
-		})
-
-		mock := redismock.NewNiceMock(client)
-		mock.On("Set").Return(redis.NewStatusResult("", nil))
-
 		ans := schema.Save()
 		if ans != nil {
 			t.Fail()
 		}
-		mr.Close()
+	})
+}
+
+func TestGetServiceSchema(t *testing.T) {
+	t.Run("Should save the schema correctly to redis", func(t *testing.T) {
+		_, err := registry.GetServiceSchema("Cart")
+		if err != nil {
+			t.Fail()
+		}
+	})
+}
+
+func TestGetAllServices(t *testing.T) {
+	t.Run("Should save the schema correctly to redis", func(t *testing.T) {
+		_, err := registry.GetAllServices()
+		if err != nil {
+			t.Fail()
+		}
 	})
 }
