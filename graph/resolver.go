@@ -37,7 +37,7 @@ func (r *mutationResolver) PushSchema(ctx context.Context, schemaInput model.Sch
 		return false, err
 	}
 
-	err = schemaRegistry.Save(registry.RedisDB)
+	err = schemaRegistry.Save()
 	if err != nil {
 		return false, err
 	}
@@ -57,7 +57,7 @@ type queryResolver struct{ *Resolver }
 func (r *queryResolver) GetSchema(ctx context.Context, services []string) ([]*model.Schema, error) {
 	servicesSchema := []*model.Schema{}
 	for _, service := range services {
-		schema, err := registry.GetServiceSchema(registry.RedisDB, service)
+		schema, err := registry.GetServiceSchema(service)
 		if err != nil {
 			return nil, fmt.Errorf("not able to get schema for the service %v", service)
 		}
@@ -69,12 +69,12 @@ func (r *queryResolver) GetSchema(ctx context.Context, services []string) ([]*mo
 
 func (r *queryResolver) GetAllSchemas(ctx context.Context) ([]*model.Schema, error) {
 	servicesSchema := []*model.Schema{}
-	services, err := registry.GetAllServices(registry.RedisDB)
+	services, err := registry.GetAllServices()
 	if err != nil {
 		return nil, fmt.Errorf("not able to get schema for the services")
 	}
 	for _, service := range *services {
-		schema, err := registry.GetServiceSchema(registry.RedisDB, service)
+		schema, err := registry.GetServiceSchema(service)
 		if err != nil {
 			return nil, fmt.Errorf("not able to get schema for the service %v", service)
 		}

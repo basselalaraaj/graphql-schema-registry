@@ -17,8 +17,7 @@ type SchemaRegistry struct {
 	TypeDefs    string
 }
 
-// RedisDB is a redis client
-var RedisDB = redis.NewClient(&redis.Options{
+var redisDB = redis.NewClient(&redis.Options{
 	Addr:     "localhost:6379",
 	Password: "",
 	DB:       0,
@@ -39,7 +38,7 @@ func (s *SchemaRegistry) ValidateSchema() error {
 }
 
 // Save the schema in redis
-func (s *SchemaRegistry) Save(redisDB *redis.Client) error {
+func (s *SchemaRegistry) Save() error {
 	value, _ := json.Marshal(s)
 
 	err := redisDB.Set(ctx, s.ServiceName, value, 0).Err()
@@ -50,7 +49,7 @@ func (s *SchemaRegistry) Save(redisDB *redis.Client) error {
 }
 
 // GetServiceSchema get service schema from redis
-func GetServiceSchema(redisDB *redis.Client, service string) (*SchemaRegistry, error) {
+func GetServiceSchema(service string) (*SchemaRegistry, error) {
 	val2, err := redisDB.Get(ctx, service).Result()
 	if err == redis.Nil {
 		return &SchemaRegistry{}, err
@@ -67,7 +66,7 @@ func GetServiceSchema(redisDB *redis.Client, service string) (*SchemaRegistry, e
 }
 
 // GetAllServices returns all services names
-func GetAllServices(redisDB *redis.Client) (*[]string, error) {
+func GetAllServices() (*[]string, error) {
 	var cursor uint64
 	keys, _, err := redisDB.Scan(ctx, cursor, "*", 100).Result()
 	if err != nil {
