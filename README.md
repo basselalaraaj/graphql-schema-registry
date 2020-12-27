@@ -18,11 +18,14 @@ $ go run server.go
 
 ### Test
 
-The `test-all` target run lint using (golangci-lint)[https://golangci-lint.run]
-and unit tests:
+```bash
+$ make test
+```
+
+### Lint
 
 ```bash
-$ make test-all
+$ make lint
 ```
 
 ### Docker
