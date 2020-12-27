@@ -17,7 +17,8 @@ type SchemaRegistry struct {
 	TypeDefs    string
 }
 
-var rdb = redis.NewClient(&redis.Options{
+// RedisDB is a redis client
+var RedisDB = redis.NewClient(&redis.Options{
 	Addr:     "localhost:6379",
 	Password: "",
 	DB:       0,
@@ -38,10 +39,10 @@ func (s *SchemaRegistry) ValidateSchema() error {
 }
 
 // Save the schema in redis
-func (s *SchemaRegistry) Save() error {
+func (s *SchemaRegistry) Save(redisDB *redis.Client) error {
 	value, _ := json.Marshal(s)
 
-	err := rdb.Set(ctx, s.ServiceName, value, 0).Err()
+	err := redisDB.Set(ctx, s.ServiceName, value, 0).Err()
 	if err != nil {
 		return err
 	}
@@ -49,8 +50,8 @@ func (s *SchemaRegistry) Save() error {
 }
 
 // GetServiceSchema get service schema from redis
-func GetServiceSchema(service string) (*SchemaRegistry, error) {
-	val2, err := rdb.Get(ctx, service).Result()
+func GetServiceSchema(redisDB *redis.Client, service string) (*SchemaRegistry, error) {
+	val2, err := redisDB.Get(ctx, service).Result()
 	if err == redis.Nil {
 		return &SchemaRegistry{}, err
 	} else if err != nil {
@@ -66,9 +67,9 @@ func GetServiceSchema(service string) (*SchemaRegistry, error) {
 }
 
 // GetAllServices returns all services names
-func GetAllServices() (*[]string, error) {
+func GetAllServices(redisDB *redis.Client) (*[]string, error) {
 	var cursor uint64
-	keys, _, err := rdb.Scan(ctx, cursor, "*", 100).Result()
+	keys, _, err := redisDB.Scan(ctx, cursor, "*", 100).Result()
 	if err != nil {
 		return &[]string{}, err
 	}
