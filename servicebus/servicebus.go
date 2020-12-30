@@ -47,6 +47,10 @@ func (s *client) createClient() error {
 
 // Initialize the service bus
 func Initialize() {
+	serviceBusEnabled := os.Getenv("SERVICEBUS_ENABLED")
+	if serviceBusEnabled == "" {
+		return
+	}
 	serviceBusClient = &client{}
 	err := serviceBusClient.createClient()
 	if err != nil {
@@ -57,6 +61,11 @@ func Initialize() {
 
 // SendMessage to send messages on the service bus
 func SendMessage(message *registry.SchemaRegistry) error {
+	serviceBusEnabled := os.Getenv("SERVICEBUS_ENABLED")
+	if serviceBusEnabled == "" {
+		return nil
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(seconds)*time.Second)
 	defer cancel()
 
