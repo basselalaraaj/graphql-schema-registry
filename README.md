@@ -29,13 +29,6 @@ $ docker build -t graphql-schema-registry .
 $ docker run -ti -p 8080:8080 graphql-schema-registry
 ```
 
-## Development
-
-Use air command line for live reloading for development
-```bash
-$ air
-```
-
 ### Tooling
 
 For easily pushing and retrieving schemas from this graphql schema registry you can use our javascript package [graphql-schema-registry-tooling](https://github.com/basselalaraaj/graphql-schema-registry-tooling).
