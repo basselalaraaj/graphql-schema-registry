@@ -22,6 +22,7 @@ func TestMain(m *testing.M) {
 
 func TestInitialize(t *testing.T) {
 	t.Run("Should throw an error that configuration 'SERVICEBUS_CONNECTION_STRING' is missing", func(t *testing.T) {
+		os.Setenv("SERVICEBUS_ENABLED", "True")
 		Initialize()
 		if serviceBusClient.topic != nil {
 			t.Fail()
