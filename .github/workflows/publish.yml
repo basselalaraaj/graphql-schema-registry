@@ -18,5 +18,8 @@ jobs:
       id: get_version
       run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
 
-    - name: Test
+    - name: Init
+      run: go mod init
+
+    - name: Publish
       run: go get -d "github.com/basselalaraaj/graphql-schema-registry@${{ steps.get_version.outputs.VERSION }}"
