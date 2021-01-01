@@ -8,8 +8,10 @@ require (
 	github.com/Azure/azure-service-bus-go v0.10.7
 	github.com/Azure/go-autorest/autorest v0.11.15 // indirect
 	github.com/Azure/go-autorest/autorest/adal v0.9.10 // indirect
+	github.com/agnivade/levenshtein v1.1.0 // indirect
 	github.com/go-redis/redis/v8 v8.4.4
 	github.com/go-redis/redismock/v8 v8.0.2
+	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/joho/godotenv v1.3.0
 	github.com/klauspost/compress v1.11.4 // indirect
 	github.com/mitchellh/mapstructure v1.4.0 // indirect

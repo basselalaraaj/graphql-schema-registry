@@ -76,7 +76,8 @@ func (r *queryResolver) GetAllSchemas(ctx context.Context) ([]*model.Schema, err
 	for _, service := range *services {
 		schema, err := registry.GetServiceSchema(service)
 		if err != nil {
-			return nil, fmt.Errorf("not able to get schema for the service %v", service)
+			fmt.Printf("not able to get schema for the service %v \n", service)
+			continue
 		}
 		newSchema := model.Schema(*schema)
 		servicesSchema = append(servicesSchema, &newSchema)
