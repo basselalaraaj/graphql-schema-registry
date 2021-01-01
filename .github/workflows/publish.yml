@@ -1,0 +1,25 @@
+name: publish
+on:
+  release:
+    types: [created]
+jobs:
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v2
+      with:
+        go-version: ^1.13
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+    
+    - name: Get the version
+      id: get_version
+      run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+
+    - name: Test
+      run: go get -d "github.com/basselalaraaj/graphql-schema-registry@${{ steps.get_version.outputs.VERSION }}"
