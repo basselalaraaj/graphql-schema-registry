@@ -3,6 +3,11 @@
 
 GraphQL Schema registry is used for discovery of services and it pushed new updates of the schema's automatically to the gateway, keeping the gateway always up to date.
 
+When using a GraphQL gateway together with multiple GraphQL services, you will run into the issue that the gateway requires static paths to connect to multiple GraphQL services.
+Using introspection the gateway reads the schema's of the GraphQL services and creates its own schema. But if introspection of one of the GraphQL services fails for example due to timeout, the gateway will fail generating the schema, resulting in a failing gateway. By validating the schema's and caching them in a schema registry, you only depend on one call to fetch all the required schema's to build the gateway schema. Lowering the risk of having an unavailable gateway.
+
+The gateway reflects the schema's of multiple GraphQL services. When a GraphQL service releases a new schema, the gateway should be notified with the schema changes to avoid new queries that are not available due to an outdated gateway. By pushing the GraphQL schema to the registry, after storing the schema, the registry pushes the new GraphQL schema to the gateway. This way all new operation in the underlying GraphQL services, are made available through the gateway.
+
 ![registry](https://user-images.githubusercontent.com/5745279/103581587-98e75080-4edc-11eb-86c9-9d60329a2dc6.jpg)
 
 
