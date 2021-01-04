@@ -1,6 +1,11 @@
 # graphql-schema-registry
 [![Go Reference](https://pkg.go.dev/badge/github.com/basselalaraaj/graphql-schema-registry.svg)](https://pkg.go.dev/github.com/basselalaraaj/graphql-schema-registry)
 
+GraphQL Schema registry is used for discovery of services and it pushed new updates of the schema's automatically to the gateway, keeping the gateway always up to date.
+
+![registry](https://user-images.githubusercontent.com/5745279/103579476-a6024080-4ed8-11eb-9676-f868b4787ff6.jpg)
+
+
 ## Getting started
 
 Run the service through the command line
