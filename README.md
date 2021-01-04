@@ -3,7 +3,7 @@
 
 GraphQL Schema registry is used for discovery of services and it pushed new updates of the schema's automatically to the gateway, keeping the gateway always up to date.
 
-![registry](https://user-images.githubusercontent.com/5745279/103579476-a6024080-4ed8-11eb-9676-f868b4787ff6.jpg)
+![registry](https://user-images.githubusercontent.com/5745279/103581587-98e75080-4edc-11eb-86c9-9d60329a2dc6.jpg)
 
 
 ## Getting started
