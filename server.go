@@ -1,3 +1,5 @@
+// GraphQL Schema registry is used for discovery of services and keeps the schema of the gateway in sync
+// with the service schemas it consumes, by automatically pushing schema changes.
 package main
 
 import (
