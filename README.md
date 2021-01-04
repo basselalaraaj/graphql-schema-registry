@@ -1,7 +1,7 @@
 # graphql-schema-registry
 [![Go Reference](https://pkg.go.dev/badge/github.com/basselalaraaj/graphql-schema-registry.svg)](https://pkg.go.dev/github.com/basselalaraaj/graphql-schema-registry)
 
-GraphQL Schema registry is used for discovery of services and it pushed new updates of the schema's automatically to the gateway, keeping the gateway always up to date.
+GraphQL Schema registry is used for discovery of services and keeps the schema of the gateway in sync with the service schemas it consumes, by automatically pushing schema changes.
 
 When using a GraphQL gateway together with multiple GraphQL services, you will run into the issue that the gateway requires static paths to connect to multiple GraphQL services.
 Using introspection the gateway reads the schema's of the GraphQL services and creates its own schema. But if introspection of one of the GraphQL services fails for example due to timeout, the gateway will fail generating the schema, resulting in a failing gateway. By validating the schema's and caching them in a schema registry, you only depend on one call to fetch all the required schema's to build the gateway schema. Lowering the risk of having an unavailable gateway.
