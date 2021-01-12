@@ -6,6 +6,7 @@ import (
 
 	"github.com/basselalaraaj/graphql-schema-registry/graph/generated"
 	"github.com/basselalaraaj/graphql-schema-registry/graph/model"
+	"github.com/basselalaraaj/graphql-schema-registry/notify"
 	"github.com/basselalaraaj/graphql-schema-registry/registry"
 	"github.com/basselalaraaj/graphql-schema-registry/servicebus"
 )
@@ -43,7 +44,8 @@ func (r *mutationResolver) PushSchema(ctx context.Context, schemaInput model.Sch
 	}
 
 	go func() {
-		err := servicebus.SendMessage(schemaRegistry)
+		serviceBus := servicebus.ServiceBus{}
+		err := notify.SendNotification(schemaRegistry, &serviceBus)
 		if err != nil {
 			fmt.Println("send message to service bus failed")
 		}
