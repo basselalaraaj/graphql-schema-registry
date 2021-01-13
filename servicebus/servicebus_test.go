@@ -46,7 +46,7 @@ func TestInitialize(t *testing.T) {
 	})
 }
 
-func TestSendMessage(t *testing.T) {
+func TestSendNotification(t *testing.T) {
 	t.Run("Should send messages correctly", func(t *testing.T) {
 		os.Setenv("SERVICEBUS_CONNECTION_STRING", connectionString)
 		os.Setenv("SERVICEBUS_TOPIC_NAME", "abc")
@@ -61,7 +61,9 @@ func TestSendMessage(t *testing.T) {
 			t.Fail()
 		}
 
-		err := SendMessage(&message)
+		serviceBus := ServiceBus{}
+
+		err := serviceBus.SendNotification(&message)
 
 		if err == nil {
 			t.Fail()

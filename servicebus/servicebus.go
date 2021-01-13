@@ -17,6 +17,10 @@ type client struct {
 	topic *servicebus.Topic
 }
 
+// ServiceBus client
+type ServiceBus struct {
+}
+
 var serviceBusClient *client
 
 func (s *client) createClient() error {
@@ -59,8 +63,8 @@ func Initialize() {
 	}
 }
 
-// SendMessage to send messages on the service bus
-func SendMessage(message *registry.SchemaRegistry) error {
+// SendNotification send message to the bus
+func (s *ServiceBus) SendNotification(message *registry.SchemaRegistry) error {
 	serviceBusEnabled := os.Getenv("SERVICEBUS_ENABLED")
 	if serviceBusEnabled == "" {
 		return nil
