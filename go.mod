@@ -22,6 +22,7 @@ require (
 	github.com/pelletier/go-toml v1.8.1 // indirect
 	github.com/vektah/gqlparser v1.3.1
 	github.com/vektah/gqlparser/v2 v2.1.0
+	go.mongodb.org/mongo-driver v1.4.4
 	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad // indirect
 	golang.org/x/sys v0.0.0-20210112091331-59c308dcf3cc // indirect
 )

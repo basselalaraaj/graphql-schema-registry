@@ -12,6 +12,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/basselalaraaj/graphql-schema-registry/graph"
 	"github.com/basselalaraaj/graphql-schema-registry/graph/generated"
+	"github.com/basselalaraaj/graphql-schema-registry/registry"
 	"github.com/basselalaraaj/graphql-schema-registry/servicebus"
 	"github.com/joho/godotenv"
 )
@@ -25,6 +26,7 @@ func main() {
 	}
 
 	servicebus.Initialize()
+	registry.Initialize()
 
 	port := os.Getenv("PORT")
 	if port == "" {

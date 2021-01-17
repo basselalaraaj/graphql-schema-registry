@@ -4,10 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
+	"os"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/vektah/gqlparser"
 	"github.com/vektah/gqlparser/ast"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // SchemaRegistry to add a schema to the registry
@@ -25,6 +30,32 @@ var redisDB = redis.NewClient(&redis.Options{
 
 var ctx = context.Background()
 
+var schemaCollection *mongo.Collection
+
+// Initialize mongodb database
+func Initialize() {
+	mongoDbConnectionString := os.Getenv("MONGODB_CONNECTION_STRING")
+	if mongoDbConnectionString == "" {
+		return
+	}
+
+	clientOptions := options.Client().ApplyURI(mongoDbConnectionString)
+
+	client, err := mongo.Connect(context.TODO(), clientOptions)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = client.Ping(context.TODO(), nil)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	schemaCollection = client.Database("schemaRegistry").Collection("schemas")
+}
+
 // ValidateSchema validates the graphql schema
 func (s *SchemaRegistry) ValidateSchema() error {
 	if s.TypeDefs == "" {
@@ -39,9 +70,21 @@ func (s *SchemaRegistry) ValidateSchema() error {
 
 // Save the schema in redis
 func (s *SchemaRegistry) Save() error {
-	value, _ := json.Marshal(s)
+	upsert := true
+	updateOptions := options.UpdateOptions{Upsert: &upsert}
+	update := bson.M{
+		"$set": s,
+	}
 
-	err := redisDB.Set(ctx, s.ServiceName, value, 0).Err()
+	filter := bson.D{{Key: "servicename", Value: s.ServiceName}}
+
+	_, err := schemaCollection.UpdateOne(context.TODO(), filter, update, &updateOptions)
+	if err != nil {
+		return err
+	}
+
+	value, _ := json.Marshal(s)
+	err = redisDB.Set(ctx, s.ServiceName, value, 0).Err()
 	if err != nil {
 		return err
 	}
