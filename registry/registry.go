@@ -111,9 +111,42 @@ func GetServiceSchema(service string) (*SchemaRegistry, error) {
 // GetAllServices returns all services names
 func GetAllServices() (*[]string, error) {
 	var cursor uint64
-	keys, _, err := redisDB.Scan(ctx, cursor, "*", 100).Result()
+	serviceSchemasRd, _, err := redisDB.Scan(ctx, cursor, "*", 100).Result()
 	if err != nil {
 		return &[]string{}, err
 	}
-	return &keys, nil
+
+	if len(serviceSchemasRd) == 0 {
+		var results []string
+
+		findOptions := options.Find()
+		serviceSchemasDb, err := schemaCollection.Find(context.TODO(), bson.D{{}}, findOptions)
+		if err != nil {
+			log.Fatal(err)
+		}
+		for serviceSchemasDb.Next(context.TODO()) {
+			var elem SchemaRegistry
+			err := serviceSchemasDb.Decode(&elem)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			value, _ := json.Marshal(elem)
+			err = redisDB.Set(ctx, elem.ServiceName, value, 0).Err()
+			if err != nil {
+				return nil, err
+			}
+
+			results = append(results, elem.ServiceName)
+		}
+
+		if err := serviceSchemasDb.Err(); err != nil {
+			log.Fatal(err)
+		}
+
+		serviceSchemasDb.Close(context.TODO())
+
+		return &results, nil
+	}
+	return &serviceSchemasRd, nil
 }
