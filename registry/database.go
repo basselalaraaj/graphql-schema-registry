@@ -13,14 +13,14 @@ import (
 
 var schemaCollection *mongo.Collection
 
-// Initialize mongodb database
-func Initialize() {
-	mongoDbConnectionString := os.Getenv("MONGODB_CONNECTION_STRING")
-	if mongoDbConnectionString == "" {
-		return
+// InitializeDatabase mongodb database
+func InitializeDatabase() {
+	mongoDBConnectionString := os.Getenv("MONGODB_CONNECTION_STRING")
+	if mongoDBConnectionString == "" {
+		log.Fatal("MONGODB_CONNECTION_STRING should not be empty")
 	}
 
-	clientOptions := options.Client().ApplyURI(mongoDbConnectionString)
+	clientOptions := options.Client().ApplyURI(mongoDBConnectionString)
 
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 

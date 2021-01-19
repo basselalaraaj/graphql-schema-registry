@@ -26,7 +26,7 @@ func main() {
 	}
 
 	servicebus.Initialize()
-	registry.Initialize()
+	registry.InitializeDatabase()
 
 	port := os.Getenv("PORT")
 	if port == "" {

@@ -33,7 +33,7 @@ func (s *SchemaRegistry) Save() error {
 		return err
 	}
 
-	err = s.saveServiceSchema()
+	err = s.setSchema()
 	if err != nil {
 		return err
 	}
@@ -42,7 +42,7 @@ func (s *SchemaRegistry) Save() error {
 
 // GetServiceSchema get service schema from redis
 func GetServiceSchema(service string) (*SchemaRegistry, error) {
-	result, err := getServiceSchema(service)
+	result, err := getSchema(service)
 
 	if err != nil {
 		return &SchemaRegistry{}, err
@@ -53,7 +53,7 @@ func GetServiceSchema(service string) (*SchemaRegistry, error) {
 
 // GetAllServices returns all services names
 func GetAllServices() (*[]string, error) {
-	serviceSchemas, err := getServices()
+	serviceSchemas, err := scanSchemas()
 	if err != nil {
 		return &[]string{}, err
 	}

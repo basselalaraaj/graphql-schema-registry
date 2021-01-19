@@ -15,7 +15,7 @@ var redisDB = redis.NewClient(&redis.Options{
 
 var ctx = context.Background()
 
-func (s *SchemaRegistry) saveServiceSchema() error {
+func (s *SchemaRegistry) setSchema() error {
 	value, _ := json.Marshal(s)
 	err := redisDB.Set(ctx, s.ServiceName, value, 0).Err()
 	if err != nil {
@@ -24,7 +24,7 @@ func (s *SchemaRegistry) saveServiceSchema() error {
 	return nil
 }
 
-func getServiceSchema(service string) (*SchemaRegistry, error) {
+func getSchema(service string) (*SchemaRegistry, error) {
 	val2, err := redisDB.Get(ctx, service).Result()
 	if err == redis.Nil {
 		return &SchemaRegistry{}, err
@@ -40,7 +40,7 @@ func getServiceSchema(service string) (*SchemaRegistry, error) {
 	}
 }
 
-func getServices() (*[]string, error) {
+func scanSchemas() (*[]string, error) {
 	var cursor uint64
 	serviceSchemas, _, err := redisDB.Scan(ctx, cursor, "*", 100).Result()
 	if err != nil {
