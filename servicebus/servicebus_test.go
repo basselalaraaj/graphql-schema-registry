@@ -23,14 +23,14 @@ func TestMain(m *testing.M) {
 func TestInitialize(t *testing.T) {
 	t.Run("Should throw an error that configuration 'SERVICEBUS_CONNECTION_STRING' is missing", func(t *testing.T) {
 		os.Setenv("SERVICEBUS_ENABLED", "True")
-		Initialize()
+
 		if serviceBusClient.topic != nil {
 			t.Fail()
 		}
 	})
 	t.Run("Should throw an error that configuration 'SERVICEBUS_TOPIC_NAME' is missing", func(t *testing.T) {
 		os.Setenv("SERVICEBUS_CONNECTION_STRING", connectionString)
-		Initialize()
+
 		if serviceBusClient.topic != nil {
 			fmt.Println(serviceBusClient)
 			t.Fail()
@@ -39,7 +39,7 @@ func TestInitialize(t *testing.T) {
 	t.Run("Should create a client", func(t *testing.T) {
 		os.Setenv("SERVICEBUS_CONNECTION_STRING", connectionString)
 		os.Setenv("SERVICEBUS_TOPIC_NAME", "abc")
-		Initialize()
+
 		if serviceBusClient.topic == nil {
 			t.Fail()
 		}
@@ -51,7 +51,6 @@ func TestSendNotification(t *testing.T) {
 		os.Setenv("SERVICEBUS_CONNECTION_STRING", connectionString)
 		os.Setenv("SERVICEBUS_TOPIC_NAME", "abc")
 
-		Initialize()
 		message := registry.SchemaRegistry{
 			ServiceName: "Cart",
 			ServiceURL:  "http://cart-service",

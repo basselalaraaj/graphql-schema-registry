@@ -6,15 +6,24 @@ import (
 	"log"
 	"os"
 
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var schemaCollection *mongo.Collection
+var schemaCollection = getCollection()
+
+func initialize() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+}
 
 // InitializeDatabase mongodb database
-func InitializeDatabase() {
+func getCollection() *mongo.Collection {
+	initialize()
 	mongoDBConnectionString := os.Getenv("MONGODB_CONNECTION_STRING")
 	if mongoDBConnectionString == "" {
 		log.Fatal("MONGODB_CONNECTION_STRING should not be empty")
@@ -34,7 +43,7 @@ func InitializeDatabase() {
 		log.Fatal(err)
 	}
 
-	schemaCollection = client.Database("schemaRegistry").Collection("schemas")
+	return client.Database("schemaRegistry").Collection("schemas")
 }
 
 func saveSchema(s *SchemaRegistry) error {

@@ -4,11 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"time"
 
 	servicebus "github.com/Azure/azure-service-bus-go"
 	"github.com/basselalaraaj/graphql-schema-registry/registry"
+	"github.com/joho/godotenv"
 )
 
 var seconds int = 40
@@ -21,7 +23,14 @@ type client struct {
 type ServiceBus struct {
 }
 
-var serviceBusClient *client
+var serviceBusClient *client = getClient()
+
+func initialize() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+}
 
 func (s *client) createClient() error {
 	connectionString := os.Getenv("SERVICEBUS_CONNECTION_STRING")
@@ -49,18 +58,20 @@ func (s *client) createClient() error {
 	return nil
 }
 
-// Initialize the service bus
-func Initialize() {
+func getClient() *client {
+	initialize()
+	client := &client{}
+
 	serviceBusEnabled := os.Getenv("SERVICEBUS_ENABLED")
 	if serviceBusEnabled == "" {
-		return
+		return client
 	}
-	serviceBusClient = &client{}
-	err := serviceBusClient.createClient()
+	err := client.createClient()
 	if err != nil {
-		fmt.Println("not able to create a client")
-		return
+		log.Fatal("not able to create a client")
 	}
+
+	return client
 }
 
 // SendNotification send message to the bus

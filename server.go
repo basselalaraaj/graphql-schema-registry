@@ -12,8 +12,6 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/basselalaraaj/graphql-schema-registry/graph"
 	"github.com/basselalaraaj/graphql-schema-registry/graph/generated"
-	"github.com/basselalaraaj/graphql-schema-registry/registry"
-	"github.com/basselalaraaj/graphql-schema-registry/servicebus"
 	"github.com/joho/godotenv"
 )
 
@@ -24,9 +22,6 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-
-	servicebus.Initialize()
-	registry.InitializeDatabase()
 
 	port := os.Getenv("PORT")
 	if port == "" {
