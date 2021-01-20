@@ -31,13 +31,13 @@ func getCollection() *mongo.Collection {
 
 	clientOptions := options.Client().ApplyURI(mongoDBConnectionString)
 
-	client, err := mongo.Connect(context.TODO(), clientOptions)
+	client, err := mongo.Connect(context.Background(), clientOptions)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = client.Ping(context.TODO(), nil)
+	err = client.Ping(context.Background(), nil)
 
 	if err != nil {
 		log.Fatal(err)
@@ -55,7 +55,7 @@ func saveSchema(s *SchemaRegistry) error {
 
 	filter := bson.D{{Key: "servicename", Value: s.ServiceName}}
 
-	_, err := schemaCollection.UpdateOne(context.TODO(), filter, update, &updateOptions)
+	_, err := schemaCollection.UpdateOne(context.Background(), filter, update, &updateOptions)
 	if err != nil {
 		return err
 	}
@@ -65,11 +65,11 @@ func saveSchema(s *SchemaRegistry) error {
 
 func getServiceSchemas(results *[]string) error {
 	findOptions := options.Find()
-	serviceSchemas, err := schemaCollection.Find(context.TODO(), bson.D{{}}, findOptions)
+	serviceSchemas, err := schemaCollection.Find(context.Background(), bson.D{{}}, findOptions)
 	if err != nil {
 		log.Fatal(err)
 	}
-	for serviceSchemas.Next(context.TODO()) {
+	for serviceSchemas.Next(context.Background()) {
 		var elem SchemaRegistry
 		err := serviceSchemas.Decode(&elem)
 		if err != nil {
@@ -89,7 +89,7 @@ func getServiceSchemas(results *[]string) error {
 		log.Fatal(err)
 	}
 
-	serviceSchemas.Close(context.TODO())
+	serviceSchemas.Close(context.Background())
 
 	return nil
 }
