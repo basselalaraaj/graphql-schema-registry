@@ -12,18 +12,18 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var schemaCollection = getCollection()
+var schemaCollection *mongo.Collection
 
-func initialize() {
+func init() {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
+
+	schemaCollection = getCollection()
 }
 
-// InitializeDatabase mongodb database
 func getCollection() *mongo.Collection {
-	initialize()
 	mongoDBConnectionString := os.Getenv("MONGODB_CONNECTION_STRING")
 	if mongoDBConnectionString == "" {
 		log.Fatal("MONGODB_CONNECTION_STRING should not be empty")

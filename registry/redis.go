@@ -7,13 +7,21 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-var redisDB = redis.NewClient(&redis.Options{
-	Addr:     "localhost:6379",
-	Password: "",
-	DB:       0,
-})
+var redisDB *redis.Client
 
 var ctx = context.Background()
+
+func init() {
+	redisDB = getRedisClient()
+}
+
+func getRedisClient() *redis.Client {
+	return redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "",
+		DB:       0,
+	})
+}
 
 func (s *SchemaRegistry) setSchema() error {
 	value, _ := json.Marshal(s)

@@ -23,13 +23,15 @@ type client struct {
 type ServiceBus struct {
 }
 
-var serviceBusClient *client = getClient()
+var serviceBusClient *client
 
-func initialize() {
+func init() {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
+
+	serviceBusClient = getClient()
 }
 
 func (s *client) createClient() error {
@@ -59,7 +61,6 @@ func (s *client) createClient() error {
 }
 
 func getClient() *client {
-	initialize()
 	client := &client{}
 
 	serviceBusEnabled := os.Getenv("SERVICEBUS_ENABLED")
