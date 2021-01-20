@@ -11,6 +11,7 @@ require (
 	github.com/agnivade/levenshtein v1.1.0 // indirect
 	github.com/cosmtrek/air v1.21.2 // indirect
 	github.com/creack/pty v1.1.11 // indirect
+	github.com/devigned/tab v0.1.1
 	github.com/fatih/color v1.10.0 // indirect
 	github.com/go-redis/redis/v8 v8.4.8
 	github.com/go-redis/redismock/v8 v8.0.2

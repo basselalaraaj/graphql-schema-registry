@@ -4,37 +4,31 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"time"
 
 	servicebus "github.com/Azure/azure-service-bus-go"
 	"github.com/basselalaraaj/graphql-schema-registry/registry"
-	"github.com/joho/godotenv"
 )
 
-var seconds int = 40
-
-type client struct {
-	topic *servicebus.Topic
-}
+var (
+	// ServiceBusClient the servicebus client
+	ServiceBusClient ServiceBus
+	seconds          int = 40
+)
 
 // ServiceBus client
 type ServiceBus struct {
+	topic *servicebus.Topic
 }
 
-var serviceBusClient *client
-
-func init() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+// CreateClient create client
+func (s *ServiceBus) CreateClient() error {
+	serviceBusEnabled := os.Getenv("SERVICEBUS_ENABLED")
+	if serviceBusEnabled == "" {
+		return nil
 	}
 
-	serviceBusClient = getClient()
-}
-
-func (s *client) createClient() error {
 	connectionString := os.Getenv("SERVICEBUS_CONNECTION_STRING")
 	if connectionString == "" {
 		return fmt.Errorf("FATAL: expected environment variable SERVICEBUS_CONNECTION_STRING not set")
@@ -60,21 +54,6 @@ func (s *client) createClient() error {
 	return nil
 }
 
-func getClient() *client {
-	client := &client{}
-
-	serviceBusEnabled := os.Getenv("SERVICEBUS_ENABLED")
-	if serviceBusEnabled == "" {
-		return client
-	}
-	err := client.createClient()
-	if err != nil {
-		log.Fatal("not able to create a client")
-	}
-
-	return client
-}
-
 // SendNotification send message to the bus
 func (s *ServiceBus) SendNotification(message *registry.SchemaRegistry) error {
 	serviceBusEnabled := os.Getenv("SERVICEBUS_ENABLED")
@@ -90,7 +69,7 @@ func (s *ServiceBus) SendNotification(message *registry.SchemaRegistry) error {
 		return err
 	}
 
-	if err := serviceBusClient.topic.Send(ctx, servicebus.NewMessageFromString(string(jsonMessage))); err != nil {
+	if err := s.topic.Send(ctx, servicebus.NewMessageFromString(string(jsonMessage))); err != nil {
 		return err
 	}
 

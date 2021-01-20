@@ -1,10 +1,12 @@
 package servicebus
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"testing"
 
+	servicebus "github.com/Azure/azure-service-bus-go"
 	"github.com/basselalaraaj/graphql-schema-registry/registry"
 )
 
@@ -20,19 +22,21 @@ func TestMain(m *testing.M) {
 	}()
 }
 
-func TestInitialize(t *testing.T) {
+func TestCreateClient(t *testing.T) {
 	t.Run("Should throw an error that configuration 'SERVICEBUS_CONNECTION_STRING' is missing", func(t *testing.T) {
 		os.Setenv("SERVICEBUS_ENABLED", "True")
 
-		if serviceBusClient.topic != nil {
+		ServiceBusClient.CreateClient()
+
+		if ServiceBusClient.topic != nil {
 			t.Fail()
 		}
 	})
 	t.Run("Should throw an error that configuration 'SERVICEBUS_TOPIC_NAME' is missing", func(t *testing.T) {
 		os.Setenv("SERVICEBUS_CONNECTION_STRING", connectionString)
+		ServiceBusClient.CreateClient()
 
-		if serviceBusClient.topic != nil {
-			fmt.Println(serviceBusClient)
+		if ServiceBusClient.topic != nil {
 			t.Fail()
 		}
 	})
@@ -40,14 +44,26 @@ func TestInitialize(t *testing.T) {
 		os.Setenv("SERVICEBUS_CONNECTION_STRING", connectionString)
 		os.Setenv("SERVICEBUS_TOPIC_NAME", "abc")
 
-		if serviceBusClient.topic == nil {
+		ServiceBusClient.CreateClient()
+
+		if ServiceBusClient.topic == nil {
 			t.Fail()
 		}
 	})
 }
 
+type Topic struct {
+	servicebus.Topic
+}
+
+func (t *Topic) Send(ctx context.Context, event *servicebus.Message, opts ...servicebus.SendOption) error {
+	return nil
+}
+
 func TestSendNotification(t *testing.T) {
+
 	t.Run("Should send messages correctly", func(t *testing.T) {
+		os.Setenv("SERVICEBUS_ENABLED", "True")
 		os.Setenv("SERVICEBUS_CONNECTION_STRING", connectionString)
 		os.Setenv("SERVICEBUS_TOPIC_NAME", "abc")
 
@@ -56,13 +72,14 @@ func TestSendNotification(t *testing.T) {
 			ServiceURL:  "http://cart-service",
 			TypeDefs:    "type Query { placeHolder: String }",
 		}
-		if serviceBusClient.topic == nil {
+		if ServiceBusClient.topic == nil {
 			t.Fail()
 		}
+		ServiceBusClient.CreateClient()
 
-		serviceBus := ServiceBus{}
+		err := ServiceBusClient.SendNotification(&message)
 
-		err := serviceBus.SendNotification(&message)
+		fmt.Println(err)
 
 		if err == nil {
 			t.Fail()

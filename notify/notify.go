@@ -15,6 +15,6 @@ func sendMessage(message *registry.SchemaRegistry, n notifier) error {
 
 // SendNotification send notification
 func SendNotification(message *registry.SchemaRegistry) error {
-	serviceBus := servicebus.ServiceBus{}
+	serviceBus := servicebus.ServiceBusClient
 	return sendMessage(message, &serviceBus)
 }
