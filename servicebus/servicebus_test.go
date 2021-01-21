@@ -2,7 +2,6 @@ package servicebus
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"testing"
 
@@ -52,11 +51,10 @@ func TestCreateClient(t *testing.T) {
 	})
 }
 
-type Topic struct {
-	servicebus.Topic
+type TopicMock struct {
 }
 
-func (t *Topic) Send(ctx context.Context, event *servicebus.Message, opts ...servicebus.SendOption) error {
+func (t *TopicMock) Send(ctx context.Context, event *servicebus.Message, opts ...servicebus.SendOption) error {
 	return nil
 }
 
@@ -75,13 +73,14 @@ func TestSendNotification(t *testing.T) {
 		if ServiceBusClient.topic == nil {
 			t.Fail()
 		}
-		ServiceBusClient.CreateClient()
+
+		ServiceBusClient = ServiceBus{
+			topic: &TopicMock{},
+		}
 
 		err := ServiceBusClient.SendNotification(&message)
 
-		fmt.Println(err)
-
-		if err == nil {
+		if err != nil {
 			t.Fail()
 		}
 	})

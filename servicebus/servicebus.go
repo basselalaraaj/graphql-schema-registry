@@ -17,9 +17,13 @@ var (
 	seconds          int = 40
 )
 
+type Topic interface {
+	Send(ctx context.Context, event *servicebus.Message, opts ...servicebus.SendOption) error
+}
+
 // ServiceBus client
 type ServiceBus struct {
-	topic *servicebus.Topic
+	topic Topic
 }
 
 // CreateClient create client
