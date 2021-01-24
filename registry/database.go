@@ -11,13 +11,21 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var schemaCollection *mongo.Collection
+// MongoDb client for mongo database
+var MongoDb mongoDb
 
-func init() {
-	// schemaCollection = getCollection()
+type mongoDbCollection interface {
+	UpdateOne(ctx context.Context, filter interface{}, update interface{},
+		opts ...*options.UpdateOptions) (*mongo.UpdateResult, error)
+	Find(ctx context.Context, filter interface{},
+		opts ...*options.FindOptions) (*mongo.Cursor, error)
 }
 
-func getCollection() *mongo.Collection {
+type mongoDb struct {
+	collection mongoDbCollection
+}
+
+func (m *mongoDb) CreateCollection() {
 	mongoDBConnectionString := os.Getenv("MONGODB_CONNECTION_STRING")
 	if mongoDBConnectionString == "" {
 		log.Fatal("MONGODB_CONNECTION_STRING should not be empty")
@@ -37,10 +45,10 @@ func getCollection() *mongo.Collection {
 		log.Fatal(err)
 	}
 
-	return client.Database("schemaRegistry").Collection("schemas")
+	m.collection = client.Database("schemaRegistry").Collection("schemas")
 }
 
-func saveSchema(s *SchemaRegistry) error {
+func (m *mongoDb) saveSchema(s *SchemaRegistry) error {
 	upsert := true
 	updateOptions := options.UpdateOptions{Upsert: &upsert}
 	update := bson.M{
@@ -49,7 +57,7 @@ func saveSchema(s *SchemaRegistry) error {
 
 	filter := bson.D{{Key: "servicename", Value: s.ServiceName}}
 
-	_, err := schemaCollection.UpdateOne(context.Background(), filter, update, &updateOptions)
+	_, err := m.collection.UpdateOne(context.Background(), filter, update, &updateOptions)
 	if err != nil {
 		return err
 	}
@@ -57,9 +65,9 @@ func saveSchema(s *SchemaRegistry) error {
 	return nil
 }
 
-func getServiceSchemas(results *[]string) error {
+func (m *mongoDb) getServiceSchemas(results *[]string) error {
 	findOptions := options.Find()
-	serviceSchemas, err := schemaCollection.Find(context.Background(), bson.D{{}}, findOptions)
+	serviceSchemas, err := m.collection.Find(context.Background(), bson.D{{}}, findOptions)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -71,7 +79,7 @@ func getServiceSchemas(results *[]string) error {
 		}
 
 		value, _ := json.Marshal(elem)
-		err = redisDB.Set(ctx, elem.ServiceName, value, 0).Err()
+		err = RedisDB.client.Set(ctx, elem.ServiceName, value, 0).Err()
 		if err != nil {
 			return err
 		}

@@ -28,7 +28,7 @@ func (s *SchemaRegistry) ValidateSchema() error {
 
 // Save the schema in redis
 func (s *SchemaRegistry) Save() error {
-	err := saveSchema(s)
+	err := MongoDb.saveSchema(s)
 	if err != nil {
 		return err
 	}
@@ -61,7 +61,7 @@ func GetAllServices() (*[]string, error) {
 	if len(*serviceSchemas) == 0 {
 		var results []string
 
-		if err := getServiceSchemas(&results); err != nil {
+		if err := MongoDb.getServiceSchemas(&results); err != nil {
 			return nil, err
 		}
 

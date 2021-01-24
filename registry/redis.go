@@ -3,20 +3,29 @@ package registry
 import (
 	"context"
 	"encoding/json"
+	"time"
 
 	"github.com/go-redis/redis/v8"
 )
 
-var redisDB *redis.Client
+var (
+	// RedisDB client for redis
+	RedisDB redisClient
+	ctx     = context.Background()
+)
 
-var ctx = context.Background()
-
-func init() {
-	redisDB = getRedisClient()
+type redisClientInterface interface {
+	Set(ctx context.Context, key string, value interface{}, expiration time.Duration) *redis.StatusCmd
+	Get(ctx context.Context, key string) *redis.StringCmd
+	Scan(ctx context.Context, cursor uint64, match string, count int64) *redis.ScanCmd
 }
 
-func getRedisClient() *redis.Client {
-	return redis.NewClient(&redis.Options{
+type redisClient struct {
+	client redisClientInterface
+}
+
+func (r *redisClient) CreateRedisClient() {
+	r.client = redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
 		Password: "",
 		DB:       0,
@@ -25,7 +34,7 @@ func getRedisClient() *redis.Client {
 
 func (s *SchemaRegistry) setSchema() error {
 	value, _ := json.Marshal(s)
-	err := redisDB.Set(ctx, s.ServiceName, value, 0).Err()
+	err := RedisDB.client.Set(ctx, s.ServiceName, value, 0).Err()
 	if err != nil {
 		return err
 	}
@@ -33,7 +42,7 @@ func (s *SchemaRegistry) setSchema() error {
 }
 
 func getSchema(service string) (*SchemaRegistry, error) {
-	val2, err := redisDB.Get(ctx, service).Result()
+	val2, err := RedisDB.client.Get(ctx, service).Result()
 	if err == redis.Nil {
 		return &SchemaRegistry{}, err
 	} else if err != nil {
@@ -50,7 +59,7 @@ func getSchema(service string) (*SchemaRegistry, error) {
 
 func scanSchemas() (*[]string, error) {
 	var cursor uint64
-	serviceSchemas, _, err := redisDB.Scan(ctx, cursor, "*", 100).Result()
+	serviceSchemas, _, err := RedisDB.client.Scan(ctx, cursor, "*", 100).Result()
 	if err != nil {
 		return &[]string{}, err
 	}
