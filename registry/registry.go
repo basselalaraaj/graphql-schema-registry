@@ -1,11 +1,8 @@
 package registry
 
 import (
-	"context"
-	"encoding/json"
 	"fmt"
 
-	"github.com/go-redis/redis/v8"
 	"github.com/vektah/gqlparser"
 	"github.com/vektah/gqlparser/ast"
 )
@@ -16,14 +13,6 @@ type SchemaRegistry struct {
 	ServiceURL  string
 	TypeDefs    string
 }
-
-var redisDB = redis.NewClient(&redis.Options{
-	Addr:     "localhost:6379",
-	Password: "",
-	DB:       0,
-})
-
-var ctx = context.Background()
 
 // ValidateSchema validates the graphql schema
 func (s *SchemaRegistry) ValidateSchema() error {
@@ -39,9 +28,12 @@ func (s *SchemaRegistry) ValidateSchema() error {
 
 // Save the schema in redis
 func (s *SchemaRegistry) Save() error {
-	value, _ := json.Marshal(s)
+	err := MongoDb.saveSchema(s)
+	if err != nil {
+		return err
+	}
 
-	err := redisDB.Set(ctx, s.ServiceName, value, 0).Err()
+	err = s.setSchema()
 	if err != nil {
 		return err
 	}
@@ -50,27 +42,30 @@ func (s *SchemaRegistry) Save() error {
 
 // GetServiceSchema get service schema from redis
 func GetServiceSchema(service string) (*SchemaRegistry, error) {
-	val2, err := redisDB.Get(ctx, service).Result()
-	if err == redis.Nil {
+	result, err := getSchema(service)
+
+	if err != nil {
 		return &SchemaRegistry{}, err
-	} else if err != nil {
-		return &SchemaRegistry{}, err
-	} else {
-		var serviceSchema SchemaRegistry
-		err := json.Unmarshal([]byte(val2), &serviceSchema)
-		if err != nil {
-			return &SchemaRegistry{}, err
-		}
-		return &serviceSchema, nil
 	}
+
+	return result, nil
 }
 
 // GetAllServices returns all services names
 func GetAllServices() (*[]string, error) {
-	var cursor uint64
-	keys, _, err := redisDB.Scan(ctx, cursor, "*", 100).Result()
+	serviceSchemas, err := scanSchemas()
 	if err != nil {
 		return &[]string{}, err
 	}
-	return &keys, nil
+
+	if len(*serviceSchemas) == 0 {
+		var results []string
+
+		if err := MongoDb.getServiceSchemas(&results); err != nil {
+			return nil, err
+		}
+
+		return &results, nil
+	}
+	return serviceSchemas, nil
 }

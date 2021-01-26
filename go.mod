@@ -11,6 +11,7 @@ require (
 	github.com/agnivade/levenshtein v1.1.0 // indirect
 	github.com/cosmtrek/air v1.21.2 // indirect
 	github.com/creack/pty v1.1.11 // indirect
+	github.com/devigned/tab v0.1.1
 	github.com/fatih/color v1.10.0 // indirect
 	github.com/go-redis/redis/v8 v8.4.8
 	github.com/go-redis/redismock/v8 v8.0.2
@@ -22,6 +23,7 @@ require (
 	github.com/pelletier/go-toml v1.8.1 // indirect
 	github.com/vektah/gqlparser v1.3.1
 	github.com/vektah/gqlparser/v2 v2.1.0
+	go.mongodb.org/mongo-driver v1.4.4
 	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad // indirect
 	golang.org/x/sys v0.0.0-20210112091331-59c308dcf3cc // indirect
 )

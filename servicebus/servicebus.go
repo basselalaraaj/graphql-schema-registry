@@ -11,19 +11,28 @@ import (
 	"github.com/basselalaraaj/graphql-schema-registry/registry"
 )
 
-var seconds int = 40
+var (
+	// ServiceBusClient the servicebus client
+	ServiceBusClient ServiceBus
+	seconds          int = 40
+)
 
-type client struct {
-	topic *servicebus.Topic
+type Topic interface {
+	Send(ctx context.Context, event *servicebus.Message, opts ...servicebus.SendOption) error
 }
 
 // ServiceBus client
 type ServiceBus struct {
+	topic Topic
 }
 
-var serviceBusClient *client
+// CreateClient create client
+func (s *ServiceBus) CreateClient() error {
+	serviceBusEnabled := os.Getenv("SERVICEBUS_ENABLED")
+	if serviceBusEnabled == "" {
+		return nil
+	}
 
-func (s *client) createClient() error {
 	connectionString := os.Getenv("SERVICEBUS_CONNECTION_STRING")
 	if connectionString == "" {
 		return fmt.Errorf("FATAL: expected environment variable SERVICEBUS_CONNECTION_STRING not set")
@@ -49,20 +58,6 @@ func (s *client) createClient() error {
 	return nil
 }
 
-// Initialize the service bus
-func Initialize() {
-	serviceBusEnabled := os.Getenv("SERVICEBUS_ENABLED")
-	if serviceBusEnabled == "" {
-		return
-	}
-	serviceBusClient = &client{}
-	err := serviceBusClient.createClient()
-	if err != nil {
-		fmt.Println("not able to create a client")
-		return
-	}
-}
-
 // SendNotification send message to the bus
 func (s *ServiceBus) SendNotification(message *registry.SchemaRegistry) error {
 	serviceBusEnabled := os.Getenv("SERVICEBUS_ENABLED")
@@ -78,7 +73,7 @@ func (s *ServiceBus) SendNotification(message *registry.SchemaRegistry) error {
 		return err
 	}
 
-	if err := serviceBusClient.topic.Send(ctx, servicebus.NewMessageFromString(string(jsonMessage))); err != nil {
+	if err := s.topic.Send(ctx, servicebus.NewMessageFromString(string(jsonMessage))); err != nil {
 		return err
 	}
 

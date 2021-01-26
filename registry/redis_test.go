@@ -17,7 +17,7 @@ var (
 
 func TestMain(m *testing.M) {
 	db, mock = redismock.NewClientMock()
-	redisDB = db
+	RedisDB = redisClient{client: db}
 
 	code := m.Run()
 

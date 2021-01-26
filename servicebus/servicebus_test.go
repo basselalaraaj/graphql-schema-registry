@@ -1,10 +1,11 @@
 package servicebus
 
 import (
-	"fmt"
+	"context"
 	"os"
 	"testing"
 
+	servicebus "github.com/Azure/azure-service-bus-go"
 	"github.com/basselalaraaj/graphql-schema-registry/registry"
 )
 
@@ -20,52 +21,66 @@ func TestMain(m *testing.M) {
 	}()
 }
 
-func TestInitialize(t *testing.T) {
+func TestCreateClient(t *testing.T) {
 	t.Run("Should throw an error that configuration 'SERVICEBUS_CONNECTION_STRING' is missing", func(t *testing.T) {
 		os.Setenv("SERVICEBUS_ENABLED", "True")
-		Initialize()
-		if serviceBusClient.topic != nil {
+
+		ServiceBusClient.CreateClient()
+
+		if ServiceBusClient.topic != nil {
 			t.Fail()
 		}
 	})
 	t.Run("Should throw an error that configuration 'SERVICEBUS_TOPIC_NAME' is missing", func(t *testing.T) {
 		os.Setenv("SERVICEBUS_CONNECTION_STRING", connectionString)
-		Initialize()
-		if serviceBusClient.topic != nil {
-			fmt.Println(serviceBusClient)
+		ServiceBusClient.CreateClient()
+
+		if ServiceBusClient.topic != nil {
 			t.Fail()
 		}
 	})
 	t.Run("Should create a client", func(t *testing.T) {
 		os.Setenv("SERVICEBUS_CONNECTION_STRING", connectionString)
 		os.Setenv("SERVICEBUS_TOPIC_NAME", "abc")
-		Initialize()
-		if serviceBusClient.topic == nil {
+
+		ServiceBusClient.CreateClient()
+
+		if ServiceBusClient.topic == nil {
 			t.Fail()
 		}
 	})
 }
 
+type TopicMock struct {
+}
+
+func (t *TopicMock) Send(ctx context.Context, event *servicebus.Message, opts ...servicebus.SendOption) error {
+	return nil
+}
+
 func TestSendNotification(t *testing.T) {
+
 	t.Run("Should send messages correctly", func(t *testing.T) {
+		os.Setenv("SERVICEBUS_ENABLED", "True")
 		os.Setenv("SERVICEBUS_CONNECTION_STRING", connectionString)
 		os.Setenv("SERVICEBUS_TOPIC_NAME", "abc")
 
-		Initialize()
 		message := registry.SchemaRegistry{
 			ServiceName: "Cart",
 			ServiceURL:  "http://cart-service",
 			TypeDefs:    "type Query { placeHolder: String }",
 		}
-		if serviceBusClient.topic == nil {
+		if ServiceBusClient.topic == nil {
 			t.Fail()
 		}
 
-		serviceBus := ServiceBus{}
+		ServiceBusClient = ServiceBus{
+			topic: &TopicMock{},
+		}
 
-		err := serviceBus.SendNotification(&message)
+		err := ServiceBusClient.SendNotification(&message)
 
-		if err == nil {
+		if err != nil {
 			t.Fail()
 		}
 	})
