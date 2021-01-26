@@ -11,21 +11,21 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// MongoDb client for mongo database
-var MongoDb mongoDb
+// MongoDB client for mongo database
+var MongoDB mongoDB
 
-type mongoDbCollection interface {
+type mongoDBCollection interface {
 	UpdateOne(ctx context.Context, filter interface{}, update interface{},
 		opts ...*options.UpdateOptions) (*mongo.UpdateResult, error)
 	Find(ctx context.Context, filter interface{},
 		opts ...*options.FindOptions) (*mongo.Cursor, error)
 }
 
-type mongoDb struct {
-	collection mongoDbCollection
+type mongoDB struct {
+	collection mongoDBCollection
 }
 
-func (m *mongoDb) CreateCollection() {
+func (m *mongoDB) CreateCollection() {
 	mongoDBConnectionString := os.Getenv("MONGODB_CONNECTION_STRING")
 	if mongoDBConnectionString == "" {
 		log.Fatal("MONGODB_CONNECTION_STRING should not be empty")
@@ -48,7 +48,7 @@ func (m *mongoDb) CreateCollection() {
 	m.collection = client.Database("schemaRegistry").Collection("schemas")
 }
 
-func (m *mongoDb) saveSchema(s *SchemaRegistry) error {
+func (m *mongoDB) saveSchema(s *SchemaRegistry) error {
 	upsert := true
 	updateOptions := options.UpdateOptions{Upsert: &upsert}
 	update := bson.M{
@@ -65,7 +65,7 @@ func (m *mongoDb) saveSchema(s *SchemaRegistry) error {
 	return nil
 }
 
-func (m *mongoDb) getServiceSchemas(results *[]string) error {
+func (m *mongoDB) getServiceSchemas(results *[]string) error {
 	findOptions := options.Find()
 	serviceSchemas, err := m.collection.Find(context.Background(), bson.D{{}}, findOptions)
 	if err != nil {

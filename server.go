@@ -39,7 +39,7 @@ func main() {
 
 	registry.RedisDB.CreateRedisClient()
 
-	registry.MongoDb.CreateCollection()
+	registry.MongoDB.CreateCollection()
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
 

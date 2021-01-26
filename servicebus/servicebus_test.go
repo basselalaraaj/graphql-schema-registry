@@ -25,7 +25,7 @@ func TestCreateClient(t *testing.T) {
 	t.Run("Should throw an error that configuration 'SERVICEBUS_CONNECTION_STRING' is missing", func(t *testing.T) {
 		os.Setenv("SERVICEBUS_ENABLED", "True")
 
-		ServiceBusClient.CreateClient()
+		_ = ServiceBusClient.CreateClient()
 
 		if ServiceBusClient.topic != nil {
 			t.Fail()
@@ -33,7 +33,7 @@ func TestCreateClient(t *testing.T) {
 	})
 	t.Run("Should throw an error that configuration 'SERVICEBUS_TOPIC_NAME' is missing", func(t *testing.T) {
 		os.Setenv("SERVICEBUS_CONNECTION_STRING", connectionString)
-		ServiceBusClient.CreateClient()
+		_ = ServiceBusClient.CreateClient()
 
 		if ServiceBusClient.topic != nil {
 			t.Fail()
@@ -43,7 +43,7 @@ func TestCreateClient(t *testing.T) {
 		os.Setenv("SERVICEBUS_CONNECTION_STRING", connectionString)
 		os.Setenv("SERVICEBUS_TOPIC_NAME", "abc")
 
-		ServiceBusClient.CreateClient()
+		_ = ServiceBusClient.CreateClient()
 
 		if ServiceBusClient.topic == nil {
 			t.Fail()
@@ -59,7 +59,6 @@ func (t *TopicMock) Send(ctx context.Context, event *servicebus.Message, opts ..
 }
 
 func TestSendNotification(t *testing.T) {
-
 	t.Run("Should send messages correctly", func(t *testing.T) {
 		os.Setenv("SERVICEBUS_ENABLED", "True")
 		os.Setenv("SERVICEBUS_CONNECTION_STRING", connectionString)
