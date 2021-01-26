@@ -77,7 +77,7 @@ func TestSchemaSave(t *testing.T) {
 		value, _ := json.Marshal(schema)
 
 		mock.ExpectSet("Cart", value, 0).SetVal("{}")
-		ans := schema.Save()
+		ans := schema.setSchema()
 		if ans != nil {
 			t.Fail()
 		}
@@ -92,7 +92,7 @@ func TestSchemaSave(t *testing.T) {
 		value, _ := json.Marshal(schema)
 
 		mock.ExpectSet("Cart", value, 0).SetErr(errors.New("fail"))
-		ans := schema.Save()
+		ans := schema.setSchema()
 		if ans == nil {
 			t.Fail()
 		}
