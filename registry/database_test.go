@@ -3,7 +3,6 @@ package registry
 import (
 	"context"
 	"errors"
-	"fmt"
 	"testing"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -35,7 +34,8 @@ func TestSaveSchema(t *testing.T) {
 		{"Should throw error when saving schema", errorNotSave, errorNotSave},
 	}
 	for _, tc := range testCases {
-		t.Run(fmt.Sprintf("%s", tc.name), func(t *testing.T) {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
 			MongoDB = mongoDB{collection: &mongoMock{mockError: tc.mockError}}
 			schema := SchemaRegistry{
 				ServiceName: "Cart",
@@ -59,7 +59,8 @@ func TestGetServiceSchemas(t *testing.T) {
 		{"Should throw error when getting service schema", errorNotSave, errorNotSave},
 	}
 	for _, tc := range testCases {
-		t.Run(fmt.Sprintf("%s", tc.name), func(t *testing.T) {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
 			MongoDB = mongoDB{collection: &mongoMock{mockError: tc.mockError}}
 			results := []string{}
 			if got := MongoDB.getServiceSchemas(&results); got != tc.want {

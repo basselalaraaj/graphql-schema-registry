@@ -13,6 +13,11 @@ The gateway reflects the schemas of multiple GraphQL services. When a GraphQL se
 
 ## Getting started
 
+Create .env file
+```.env
+MONGODB_CONNECTION_STRING=mongodb://localhost:27017
+```
+
 Run the service through the command line
 
 ```bash
