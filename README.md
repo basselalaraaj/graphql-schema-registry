@@ -8,7 +8,7 @@ Using introspection the gateway reads the schemas of the GraphQL services and cr
 
 The gateway reflects the schemas of multiple GraphQL services. When a GraphQL service releases a new schema, the gateway should be notified with the schema changes to avoid new queries that are not available due to an outdated gateway. By pushing the GraphQL schema to the registry, after storing the schema, the registry pushes the new GraphQL schema to the gateway. This way all new operation in the underlying GraphQL services, are made available through the gateway.
 
-![registry](https://user-images.githubusercontent.com/5745279/103581587-98e75080-4edc-11eb-86c9-9d60329a2dc6.jpg)
+![registry](https://user-images.githubusercontent.com/5745279/106200008-94017e00-61b6-11eb-859d-a686847f428e.jpg)
 
 
 ## Getting started
