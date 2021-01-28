@@ -69,13 +69,13 @@ func (m *mongoDB) getServiceSchemas(results *[]string) error {
 	findOptions := options.Find()
 	serviceSchemas, err := m.collection.Find(context.Background(), bson.D{{}}, findOptions)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	for serviceSchemas.Next(context.Background()) {
 		var elem SchemaRegistry
 		err := serviceSchemas.Decode(&elem)
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 
 		value, _ := json.Marshal(elem)
@@ -88,7 +88,7 @@ func (m *mongoDB) getServiceSchemas(results *[]string) error {
 	}
 
 	if err := serviceSchemas.Err(); err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	serviceSchemas.Close(context.Background())
